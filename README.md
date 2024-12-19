@@ -1,108 +1,98 @@
-# ✨ Rushly
-Elevating your shopping experience. Built on Kotlin and MVVM principles, enjoy a sleek interface, easy navigation, and seamless browsing experience for a stress-free shopping spree.
+# AndroidDev_CourseFinalPJ
 
-## Screenshots 📱
-<div align="center">
-<img src="https://github.com/Mahmud0808/Rushly/blob/master/screenshots/home.jpg" width="18%" /> <img src="https://github.com/Mahmud0808/Rushly/blob/master/screenshots/search.jpg" width="18%" /> <img src="https://github.com/Mahmud0808/Rushly/blob/master/screenshots/cart.jpg" width="18%" /> <img src="https://github.com/Mahmud0808/Rushly/blob/master/screenshots/profile.jpg" width="18%" /> <img src="https://github.com/Mahmud0808/Rushly/blob/master/screenshots/product.jpg" width="18%" />
-<img src="https://github.com/Mahmud0808/Rushly/blob/master/screenshots/orders.jpg" width="18%" /> <img src="https://github.com/Mahmud0808/Rushly/blob/master/screenshots/status.jpg" width="18%" />
-</div>
+#### 主題：星巴克會員與行銷管理 APP
 
-## Architecture 🗼
+---
 
-This app uses [***Firebase***](https://firebase.google.com/) services and Model-View-ViewModel (MVVM) architecture.
+### **1. APP架構與功能**
 
-## Build-Tool 🧰
+### 主頁面
+1. 設計主畫面並配置按鈕導航。
+2. 建立「會員登入與註冊」頁面，設定 Firebase Authentication。
 
-You need to have [Android Studio Hedgehog or above](https://developer.android.com/studio) to build this project.
+**參考：**
 
-## Getting Started 🚀
+- [Rushly/Navigation Components](https://github.com/Mahmud0808/Rushly)
+- [Firebase Authentication 教程](https://www.youtube.com/watch?v=QAKq8UBv4GI&t=9s&ab_channel=CodesEasy&loop=0)
 
-- In Android Studio project, go to `Tools` > `Firebase` > `Authentication` > `Authenticate using a custom authentication system`:
-  - First, `Connect to Firebase`
-  - After that, `Add the Firebase Authentication SDK to your app`
+#### **會員管理頁面**
+- **功能描述**：
+  - 註冊/登入
+  - 個人資料管理（包括聯絡方式、地址、生日等）
+  - 會員等級及優惠資訊查詢
+  - 點數餘額及交易紀錄查詢
+- **技術需求**：
+  - 前端採用 RecyclerView 動態顯示點數紀錄。
+  - Firebase Authentication 進行會員註冊與登入驗證。
+  - 會員資料儲存至 Firebase Realtime Database 或 Firestore。
+  - 會員等級、優惠對應查詢 D1「會員資料庫」。
 
-- Now open your project's [Firebase Console](https://console.firebase.google.com/) > `Authentication` > `Sign-in method`:
-  - Enable `Email/Password`
-  - Do not enable `Email link (passwordless sign-in)`
+#### **門市資訊頁面**
+- **功能描述**：
+  - 門市查詢
+  - 門市營業時間、聯絡資訊查詢
+  - 加盟店聯繫資料展示
+- **技術需求**：
+  - 使用 Google Maps API 或 OpenStreetMap 進行地圖定位與門市篩選。
+  - 門市資訊由 D3「門市資料庫」提供，定期同步更新。
+  - 提供快速撥打聯繫電話功能。
 
-- Enable `Firestore Database`, open `Rules` tab and use this rule:
+#### **商品頁面**
+- **功能描述**：
+  - 菜單瀏覽
+  - 商品詳細資訊展示（含中/英文說明）
+  - 商品圖片展示
+- **技術需求**：
+  - 商品資訊存儲於 D5「商品資料庫」。
+  - 使用 Glide 庫優化圖片加載，提升流暢度。
+  - 分類菜單採用 TabLayout + Fragment 實現動態切換。
 
-```
-rules_version = '2';
+#### **優惠活動頁面**
+- **功能描述**：
+  - 查看最新活動資訊
+  - 活動註冊/參與
+- **技術需求**：
+  - 優惠活動資訊從 D4「行銷活動資料庫」抓取。
+  - 註冊活動後更新至 D1 會員資料庫，並同步行銷部門數據。
+  - Firebase Cloud Messaging (FCM) 實現活動推播通知。
 
-service cloud.firestore {
-  match /databases/{database}/documents {    
-    // Everyone can read, but no one can write to admin collection
-    match /admin/{adminId} {
-      allow read: if request.auth != null;
-			allow write: if false;
-    }
+---
 
-    // Users can read user collection, and can edit their own collection
-    match /user/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (request.auth.uid == userId || isUserAdmin());
-      
-      match /cart/{document=**} {
-        allow read, write: if request.auth != null && (request.auth.uid == userId || isUserAdmin());
-      }
-      
-      match /address/{document=**} {
-        allow read, write: if request.auth != null && (request.auth.uid == userId || isUserAdmin());
-      }
-      
-      match /order/{document=**} {
-        allow read, write: if request.auth != null && (request.auth.uid == userId || isUserAdmin());
-      }
-    }
-    
-    // Allow read access to product for everyone, but write access only for admins
-    match /product/{productId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && isUserAdmin();
-    }
-    
-    // Allow users to read order list if the order contains their userId
-    // Or, allow read and write access to list of order only for admins
-    match /order/{orderId} {
-    	allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isUserAdmin());
-      allow write: if request.auth != null && isUserAdmin();
-    }
+### **2. DFD 圖的功能與資料流對應分析**
+![starbucks_Member_1_2_Part_DFD](https://github.com/user-attachments/assets/6bc09216-cbec-42a9-b863-b1f67d011fa7)
+![starbucks_Stock_Stores_Sales__3_4_5_Part_DFD](https://github.com/user-attachments/assets/e4f51813-fedc-4c72-a365-f6a390f7ff6e)
 
-    // Function to check if the user is an admin
-    function isUserAdmin() {
-      return get(/databases/$(database)/documents/admin/$(request.auth.uid)).data != null;
-    }
-  }
-}
-```
+根據 PDF 文件中的 DFD 圖，系統核心功能與資料流如下：
+1. **會員資料管理**：
+   - 資料流：會員輸入個人資料 → 儲存會員資料 → 會員驗證。
+   - 資料來源：D1「會員資料庫」。
+2. **點數處理**：
+   - 資料流：點數查詢/異動 → 更新點數交易紀錄。
+   - 資料來源：D2「點數交易紀錄」。
+3. **門市資訊管理**：
+   - 資料流：門市資訊查詢 → 從 D3 門市資料庫讀取。
+4. **行銷活動規劃**：
+   - 資料流：查詢活動/促銷方案 → 從 D4 行銷活動資料庫讀取。
+5. **商品資訊管理**：
+   - 資料流：商品查詢 → 從 D5 商品資料庫讀取。
+---
+## 3. 參考網址資料
+### 1.
 
-- Enable `Firebase Storage`
+https://github.com/akrajilwar/Android-Login-And-Registration/tree/master
 
-- That's it. Now you are good to go!
+此儲存庫 `akrajilwar/Android-Login-And-Registration` 提供了一個使用 PHP、MySQL 和 SQLite 資料庫的 Android 登入和註冊系統。它包含了完整的系統開發教學，並提供登入、註冊、電子郵件驗證和首頁的範例畫面。該儲存庫包含在 Windows 的 XAMPP 和網頁託管環境中設置系統的步驟，詳細說明了必要的配置和資料庫設置。
 
-## Some info 📌
+更多詳細資訊，您可以閱讀[README](https://github.com/akrajilwar/Android-Login-And-Registration/blob/65457e7f4e372518f7520f088078ca351ce98664/README.md)檔案。
 
-- Adding new products is a task reserved for admins only. If you want to make someone an admin, start by creating a user account within the app. Then, in your Firestore database, create a collection called `admin`. Find the document ID of the new user account you just made in the database. Now, create a new document within the admin collection and paste that ID as its document ID. And that’s all there is to it!
+### 2.
 
-- To update the status of an order, like pending, confirmed, shipped, or delivered, follow these steps:
+儲存庫 [Mahmud0808/Rushly](https://github.com/Mahmud0808/Rushly) 是一個使用 Kotlin 和 MVVM 架構建立的電子商務 Android 應用程式。它提供了時尚的介面、簡易的導航和流暢的購物瀏覽體驗。該應用程式使用 Firebase 服務實現身份驗證、Firestore 資料庫和儲存等功能。
 
-  - Navigate to the "All Orders" page.
-  - Locate and select the specific order you wish to update.
-  - Click on the step view to update the status accordingly.
+更多詳細資訊，您可以查看[README檔案](https://github.com/Mahmud0808/Rushly/blob/9afb8afc12e6443f2499c19014afaeff79a7c292/README.md)。
 
-  It's as simple as that!
+### 3.
 
-## Contact 📩
+[YouTube: Login and Registration using Firebase in Android](https://www.youtube.com/watch?v=QAKq8UBv4GI&t=9s&ab_channel=CodesEasy&loop=0)
 
-Wanna reach out to me? DM me at 👇
-
-Email: mahmudul15-13791@diu.edu.bd
-
-## Credits 🤝
-
-- [Make Your Own E-COMMERCE - Shopping APP Android](https://www.youtube.com/playlist?list=PLzZEuVaFb9ExqUwxMoXg0Li0wYW2IeAkz) by Landofcoding
-
-## Disclaimer 📋
-
-I decided to work on this project to learn Kotlin, Coroutines, and MVVM architecture. Just to be clear, I don't own any part of it. I simply fixed some problems and added features to improve it.
+Firebase 是 Google 對 Android 手機開發的資料庫系統。
